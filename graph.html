@@ -1,0 +1,77 @@
+<HTML>
+<head><title>Googleグラフテスト表示用</title>
+<script language="JavaScript">
+//初回ロード用
+  google.load('visualization', '1', {packages:['corechart']});
+  google.setOnLoadCallback(drawChart);
+  function drawChart(){
+    var data = $.ajax({
+      type:"POST",
+      url:"graph.php",
+      dataType:"json",
+      data:{'id':"018",'koumoku':"NNN",date:"<?php print_r(date('Y-m-d',$dateS)); ?>"},
+      async:false
+    }).responseText;
+    var chart_data = new google.visualization.DataTable(data);
+    var lineChart = new google.visualization.LineChart(document.getElementById('chart_div1'));
+    var options = {
+      height: 400,
+      width: 656,
+    };
+    lineChart.draw(chart_data,options);
+  }
+
+//特定のクラスが指定されたタグをクリック時に、該当グラフを表示
+$(function() {
+  $('.colorset').click(function() {
+    $('.chart').css('display','block');
+    $('#chart_div1').css('display','block');
+    var data = $.ajax({
+      type:"POST",
+      url:"graph.php",
+      dataType:"json",
+      data:{'id':$(this).attr("id"),'koumoku':$(this).attr("value"),date:"<?php print_r(date('Y-m-d',$dateS)); ?>"},
+      async:false
+    }).responseText;
+    var chart_data = new google.visualization.DataTable(data);
+    var lineChart = new google.visualization.LineChart(document.getElementById('chart_div1'));
+    var optAry = $.ajax({
+      type:"POST",
+      url:"graphoption.php",
+      dataType:"json",
+      data:{'kyoku':$(this).attr("id"),'koumoku':$(this).attr("value"),date:"<?php print_r(date('Y-m-d',$dateS)); ?>"},
+      async:false
+    }).responseText;
+    var options = {
+      height: 400,
+      width: 656
+    };
+    lineChart.draw(chart_data,options);
+  }
+  });
+});
+</script>
+</head>
+<body>
+表示テスト。
+<table>
+<tr><td class="colorset" id="a" value="x">a</tr>
+<tr><td class="colorset" id="b" value="y">b</tr>
+</table>
+上のテーブルのa,bをクリックすると、
+下に何かしらグラフが出るような出ないような。
+<div class="chart cf">
+    <div id="chart_div1" class="graph"></div>
+</div><!--chart -->
+
+<script type="text/javascript">
+//初回ロード用
+$(function () {
+  setTimeout(function(){
+    $('.chart .graph').css('display','none');
+    $('#chart_div<?php print_r($tab); ?>').css('display','block');
+ 	}, 100);
+});
+</script>
+</body>
+</HTML>
